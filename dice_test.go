@@ -19,23 +19,41 @@ func TestDice(t *testing.T) {
 		t.Error("Total != 0 on creation")
 	}
 	d.Roll()
-	if d.Total() == 0 {
-		t.Error("Total == 0 after roll")
+	if d.Total() <= 0 {
+		t.Error("Total <= 0 after roll")
+	}
+}
+
+func TestDiceNeg(t *testing.T) {
+	d := NewDice(false, 1, 8)
+	if d.Total() != 0 {
+		t.Error("Total != 0 on creation")
+	}
+	d.Roll()
+	if d.Total() >= 0 {
+		t.Error("Total >= 0 after roll")
 	}
 
 }
 
 func TestPouch(t *testing.T) {
-	p := NewPouch("2d8+1d6+2")
-	if e, o := 3, len(p.items); e != o {
+	p := NewPouch("2d8-1-1d6+2")
+	if e, o := 4, len(p.items); e != o {
 		t.Errorf("Unexpected length %s, expected %s", o, e)
 	}
 	p.Roll()
-	var length = []int{2, 1, 0}
+	var length = []int{2, 0, 1, 0}
 	for i, d := range p.items {
 		if e, o := length[i], len(d.Partials()); e != o {
 			t.Errorf("Unexpected partials length %s for %d, expected %s", o, i, e)
 		}
 	}
 	t.Log(p)
+}
+
+func TestEmptyPouch(t *testing.T) {
+	p := NewPouch("")
+	if e, o := 0, len(p.items); e != o {
+		t.Errorf("Unexpected length %s, expected %s", o, e)
+	}
 }
