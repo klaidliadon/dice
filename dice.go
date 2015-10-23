@@ -1,3 +1,4 @@
+// The package dice creates rollable dice and pouch (group of dice)
 package dice
 
 import (
@@ -10,10 +11,12 @@ import (
 	"time"
 )
 
+// The regexp used to split dice and bonus
 const RollFormat = `\s*[+-]?([0-9]*)[dD]([0-9]+)|([+-]?[0-9]*)`
 
 var splitter = regexp.MustCompile(RollFormat)
 
+// Creates a new pouch by parsing dice and bonus from the string
 func NewPouch(s string) *Pouch {
 	matches := splitter.FindAllStringSubmatch(strings.Replace(s, " ", "", -1), -1)
 	var r = make([]Item, 0, len(matches))
@@ -60,6 +63,7 @@ func (p *Pouch) Total() int {
 	return t
 }
 
+// Pretty print of the pouch with its result
 func (p *Pouch) String() string {
 	var b = bytes.NewBuffer(nil)
 	for _, i := range p.items {
@@ -73,6 +77,7 @@ func (p *Pouch) String() string {
 	return b.String()
 }
 
+// An interface for Bonus and Dice
 type Item interface {
 	Roll()
 	Total() int
@@ -80,12 +85,14 @@ type Item interface {
 	String() string
 }
 
+// A group of dice of the same type (number of faces)
 type Dice struct {
 	Sign      bool
 	Qty, Face int
 	results   []int
 }
 
+// Rolls each dice
 func (d *Dice) Roll() {
 	s := rand.NewSource(time.Now().UnixNano())
 	var r = make([]int, d.Qty)
@@ -95,6 +102,7 @@ func (d *Dice) Roll() {
 	d.results = r
 }
 
+// Return the total form thge last roll
 func (d *Dice) Total() int {
 	var tot int
 	for _, s := range d.results {
@@ -106,6 +114,7 @@ func (d *Dice) Total() int {
 	return tot
 }
 
+// Return the result fo the single rolls
 func (d *Dice) Partials() []int {
 	return d.results
 }
