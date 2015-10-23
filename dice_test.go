@@ -3,7 +3,7 @@ package dice
 import "testing"
 
 func TestBonus(t *testing.T) {
-	b := NewBonus(2)
+	b := Bonus(2)
 	if e, o := 2, b.Total(); e != o {
 		t.Errorf("Invalid value %d, expected %d", o, e)
 	}
@@ -14,7 +14,7 @@ func TestBonus(t *testing.T) {
 }
 
 func TestDice(t *testing.T) {
-	d := NewDice(true, 1, 8)
+	d := Dice{true, 1, 8, nil}
 	if d.Total() != 0 {
 		t.Error("Total != 0 on creation")
 	}
@@ -25,7 +25,7 @@ func TestDice(t *testing.T) {
 }
 
 func TestDiceNeg(t *testing.T) {
-	d := NewDice(false, 1, 8)
+	d := Dice{false, 1, 8, nil}
 	if d.Total() != 0 {
 		t.Error("Total != 0 on creation")
 	}

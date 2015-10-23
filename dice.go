@@ -24,7 +24,7 @@ func NewPouch(s string) *Pouch {
 		}
 		if m[3] != "" {
 			v, _ := strconv.Atoi(m[0])
-			r = append(r, NewBonus(v))
+			r = append(r, Bonus(v))
 		} else {
 			s := len(m[0]) == 0 || m[0][0] != '-'
 			q, _ := strconv.Atoi(m[1])
@@ -32,23 +32,26 @@ func NewPouch(s string) *Pouch {
 				q++
 			}
 			f, _ := strconv.Atoi(m[2])
-			r = append(r, NewDice(s, q, f))
+			r = append(r, &Dice{s, q, f, nil})
 		}
 	}
 	return &Pouch{s, r}
 }
 
+// A group of dice
 type Pouch struct {
 	src   string
 	items []Item
 }
 
+// Rolls all the dices in the pouch
 func (p *Pouch) Roll() {
 	for _, i := range p.items {
 		i.Roll()
 	}
 }
 
+// Gets the result from thelast roll
 func (p *Pouch) Total() int {
 	var t = 0
 	for _, i := range p.items {
@@ -77,14 +80,10 @@ type Item interface {
 	String() string
 }
 
-func NewDice(sign bool, number, face int) Item {
-	return &Dice{Sign: sign, Face: face, Qty: number}
-}
-
 type Dice struct {
 	Sign      bool
 	Qty, Face int
-	Results   []int
+	results   []int
 }
 
 func (d *Dice) Roll() {
@@ -93,12 +92,12 @@ func (d *Dice) Roll() {
 	for i := 0; i < d.Qty; i++ {
 		r[i] = 1 + rand.New(s).Intn(d.Face)
 	}
-	d.Results = r
+	d.results = r
 }
 
 func (d *Dice) Total() int {
 	var tot int
-	for _, s := range d.Results {
+	for _, s := range d.results {
 		tot += s
 	}
 	if !d.Sign {
@@ -108,7 +107,7 @@ func (d *Dice) Total() int {
 }
 
 func (d *Dice) Partials() []int {
-	return d.Results
+	return d.results
 }
 
 func (d *Dice) String() string {
@@ -122,24 +121,22 @@ func (d *Dice) String() string {
 	return b.String()
 }
 
-func NewBonus(v int) Item {
-	return &Bonus{v}
-}
+// An integer modifier to a roll (positive or negative)
+type Bonus int
 
-type Bonus struct {
-	Value int
-}
+// Does nothing
+func (b Bonus) Roll() {}
 
-func (b *Bonus) Roll() {}
+// Returns the modifier
+func (b Bonus) Total() int { return int(b) }
 
-func (b *Bonus) Total() int { return b.Value }
+// Returns nothing
+func (b Bonus) Partials() []int { return nil }
 
-func (b *Bonus) Partials() []int { return nil }
-
-func (b *Bonus) String() string {
+func (b Bonus) String() string {
 	var sign = ""
-	if b.Value > -1 {
+	if b > -1 {
 		sign = "+"
 	}
-	return fmt.Sprintf("%s%v", sign, b.Value)
+	return fmt.Sprintf("%s%d", sign, b)
 }
