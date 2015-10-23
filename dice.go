@@ -16,7 +16,7 @@ const RollFormat = `\s*[+-]?([0-9]*)[dD]([0-9]+)|([+-]?[0-9]*)`
 
 var splitter = regexp.MustCompile(RollFormat)
 
-// Creates a new pouch by parsing dice and bonus from the string
+// Creates a new pouch by parsing a string
 func NewPouch(s string) *Pouch {
 	matches := splitter.FindAllStringSubmatch(strings.Replace(s, " ", "", -1), -1)
 	var r = make([]Item, 0, len(matches))
@@ -54,7 +54,7 @@ func (p *Pouch) Roll() {
 	}
 }
 
-// Gets the result from thelast roll
+// The result of the last roll
 func (p *Pouch) Total() int {
 	var t = 0
 	for _, i := range p.items {
@@ -63,7 +63,7 @@ func (p *Pouch) Total() int {
 	return t
 }
 
-// Pretty print of the pouch with its result
+// Pretty print of the roll
 func (p *Pouch) String() string {
 	var b = bytes.NewBuffer(nil)
 	for _, i := range p.items {
@@ -85,7 +85,7 @@ type Item interface {
 	String() string
 }
 
-// A group of dice of the same type (number of faces)
+// A group of dice of the same type
 type Dice struct {
 	Sign      bool
 	Qty, Face int
@@ -102,7 +102,7 @@ func (d *Dice) Roll() {
 	d.results = r
 }
 
-// Return the total form thge last roll
+// Return the total form the last roll
 func (d *Dice) Total() int {
 	var tot int
 	for _, s := range d.results {
@@ -114,7 +114,7 @@ func (d *Dice) Total() int {
 	return tot
 }
 
-// Return the result fo the single rolls
+// Return the result of the single rolls
 func (d *Dice) Partials() []int {
 	return d.results
 }
@@ -136,10 +136,10 @@ type Bonus int
 // Does nothing
 func (b Bonus) Roll() {}
 
-// Returns the modifier
+// Returns the bonus
 func (b Bonus) Total() int { return int(b) }
 
-// Returns nothing
+// Gets nothing
 func (b Bonus) Partials() []int { return nil }
 
 func (b Bonus) String() string {
